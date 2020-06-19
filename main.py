@@ -1,38 +1,49 @@
+
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 
-
-cred = credentials.Certificate('firebase_creds.json')
+cred = credentials.Certificate("firebase_creds.json")
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
-# FUNCTION FOR ADDING DATA TO LOCATIONS COLLECTION
+#! CREATE AND UPDATE
+
+city1 = {
+    u'city': 'Chicago',
+    u'state': 'Illinois'
+}
+
+city2 = {
+    u'city': 'Boston',
+    u'state': 'Massachusetts'
+}
+
+city3 = {
+    u'city': 'Denver',
+    u'state': 'Colorado'
+}
+
+db.collection(u'cities').document(u'city1').set(city1)
+# db.collection(u'cities').document().set(city3)
 
 
-def add_data(doc, city, state):
-    db.collection(u'locations').document(u'{}'.format(doc)).set({
-        u'city': u'{}'.format(city),
-        u'state': u'{}'.format(state)
-    })
+#! READ
+
+cities_ref = db.collection(u'cities').stream()
+
+for city in cities_ref:
+    print(city.to_dict())
 
 
-# ADD DATA USING THAT FUNCTION
-add_data('location1', 'Miami', 'Florida')
-add_data('location2', 'Denver', 'Colorado')
+#! DELETE
 
-# READ DATA
-cities = db.collection(u'locations').stream()
-for city in cities:
-    print(f'{city.id} => {city.to_dict()}')
+cities_ref = db.collection(u'cities')
+cities_ref.document(u'city1').delete()
 
-# DELETE DATA
-db.collection(u'locations').document(u'location1').delete()
+#! VIEW UPDATED DATA
+cities_ref = db.collection(u'cities').stream()
 
-# AGAIN CHECK THE DATA AFTER DELETION
-cities = db.collection(u'locations').stream()
-for city in cities:
-    print(f'{city.id} => {city.to_dict()}')
-
-# TO UPDATE DATA JUST USE THE add_data() FUNCTION AND TRY TO OVERRIDE THE OLD DATA
+for city in cities_ref:
+    print(city.to_dict())
